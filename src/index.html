@@ -4,6 +4,28 @@
 
     <script type="module">
       import * as THREE from '/assets/three.module.js';
+
+      function loadAndPlayAudio() {          
+        var context = new AudioContext();     
+        var request = new XMLHttpRequest();
+        request.open('GET', "/assets/music.mp3", true);
+        request.responseType = 'arraybuffer';
+
+        // Decode asynchronously
+        request.onload = function() {
+          context.decodeAudioData(request.response, function(buffer) {
+            var source = context.createBufferSource();
+            source.buffer = buffer;             
+            var gainNode = context.createGain();
+            source.connect(gainNode);
+            gainNode.connect(context.destination);
+            gainNode.gain.value = -0.6;
+            source.connect(context.destination);
+            source.start(0);  
+          }, null);
+        }
+        request.send();
+      }
        
       function main() {
         const canvas = document.querySelector('#canvas');
@@ -18,12 +40,18 @@
 
         const scene = new THREE.Scene();
 
+        const color = 0xFFFFFF;
+        const intensity = 1;
+        const light = new THREE.DirectionalLight(color, intensity);
+        light.position.set(-1, 2, 4);
+        scene.add(light);
+
         const boxWidth = 1;
         const boxHeight = 1;
         const boxDepth = 1;
         const geometry = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth);
 
-        const material = new THREE.MeshBasicMaterial({color: 0x44aa88});  // greenish blue
+        const material = new THREE.MeshPhongMaterial({color: 0x44aa88});
 
         const cube = new THREE.Mesh(geometry, material);
         scene.add(cube);
@@ -45,6 +73,8 @@
           }
         }
 
+        
+
         function render(time) {
           time *= 0.001;  // convert time to seconds
 
@@ -61,6 +91,7 @@
 
       }
 
+      loadAndPlayAudio();
       main();
     </script>
   </head>
