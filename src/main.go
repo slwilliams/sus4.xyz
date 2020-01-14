@@ -7,7 +7,7 @@ import (
 
 func main() {
   fs := http.FileServer(http.Dir("assets"))
-  http.Handle("/assets", fs)
+  http.Handle("/assets/", http.StripPrefix("/assets/", fs))
   http.HandleFunc("/", func (w http.ResponseWriter, r *http.Request) {
     http.ServeFile(w, r, "index.html")
   })
