@@ -1,23 +1,32 @@
 import * as THREE from "/assets/three.module.js";
 
-function loadAndPlayAudio() {          
-  var context = new AudioContext();     
+
+// Global audio context.
+var context = new AudioContext();
+var source = context.createBufferSource();
+var playing = false;
+
+function loadAndPlayAudio(song) {           
   var request = new XMLHttpRequest();
-  request.open('GET', "/assets/music.mp3", true);
+  request.open('GET', `/assets/${song}.mp3`, true);
   request.responseType = 'arraybuffer';
 
   // Decode asynchronously
   request.onload = function() {
-    context.decodeAudioData(request.response, function(buffer) {
-      var source = context.createBufferSource();
-      source.buffer = buffer;             
+    context.decodeAudioData(request.response, function(buffer) {      
+      if (playing) {
+        source.stop(0);
+      }
+      source = context.createBufferSource();
+      source.buffer = buffer;
       var gainNode = context.createGain();
       source.connect(gainNode);
       gainNode.connect(context.destination);
       gainNode.gain.value = -0.6;
       
       source.connect(context.destination);
-      source.start(0);  
+      source.start(0);
+      playing = true;
     }, null);
   }
   request.send();
@@ -87,5 +96,14 @@ function main() {
 
 }
 
-loadAndPlayAudio();
+$('.button').each(function(i, e) {
+  $(e).click(function(e) {
+    let song = $(this).attr('id');
+    if (song == '') {
+      song = $(this).parent().attr('id');
+    }
+    loadAndPlayAudio(song);
+  });
+});
+
 main();
