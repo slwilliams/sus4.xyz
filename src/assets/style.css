@@ -18,6 +18,7 @@ html, body {
 	display: inline-block;
   float: left;
   background-color: black;
+  user-select: none;
 }
 
 
@@ -48,6 +49,7 @@ html, body {
   font-size: 40px;
   animation: MoveUpDown 1s ease-in-out infinite;
   animation-direction: alternate;
+  user-select: none;
 }
 
 @keyframes MoveUpDown {
@@ -73,6 +75,7 @@ html, body {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  user-select: none;
 }
 
 .button {
@@ -82,10 +85,14 @@ html, body {
   text-align: center;
   justify-content: center;
   align-items: center;
-  margin-top: 20px;
-  border-radius: 20px;
+  margin-top: 30px;
+  border-radius: 4px;
   border: solid 1px #073807;
   cursor: pointer;
+}
+
+.button:hover h2 {
+  color: #c30199;
 }
 
 .button h2 {
@@ -93,5 +100,6 @@ html, body {
   font-family: Courier New,Courier,Lucida Sans Typewriter,Lucida Typewriter,monospace;
   -webkit-text-stroke-width: 1px;
   -webkit-text-stroke-color: #0a6480;
+  letter-spacing: 3px;
 }
 
