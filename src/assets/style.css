@@ -9,24 +9,21 @@ html, body {
 }
 
 #content {
-  
+  height: 100%;
+  display: flex;
 }
 
 #left-bar {
 	height: 100%;
-	width: 20%;
-	display: inline-block;
-  float: left;
+	width: 400px;
   background-color: black;
   user-select: none;
 }
 
-
 #canvas-container {
-	display: inline-block;
-  float: right;
   height: 100%;
   width: 80%;
+  flex-grow: 1;
 }
 
 #heading {

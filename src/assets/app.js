@@ -22,7 +22,7 @@ function loadAndPlayAudio(song) {
       var gainNode = context.createGain();
       source.connect(gainNode);
       gainNode.connect(context.destination);
-      gainNode.gain.value = -0.6;
+      gainNode.gain.value = -0.4;
       
       source.connect(context.destination);
       source.start(0);
