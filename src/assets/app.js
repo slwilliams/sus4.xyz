@@ -34,7 +34,7 @@ function main() {
   const canvas = document.querySelector('#canvas');
   const renderer = new THREE.WebGLRenderer({canvas});
 
-  const cubeCount = 9;
+  const cubeCount = 15;
   const cubeSize = 1;
   const cubeStride = 3;
 
@@ -63,10 +63,15 @@ function main() {
       const cube = new THREE.Mesh(geometry, material);
       cube.position.x += cubeStride * i;
       cube.position.z += (cubeStride * j) + 5;
-      cubes.push(cube);
+      cubes.push(cube);      
       scene.add(cube);
     }    
   }  
+
+  let yVals = [];
+  for (let i = 0; i < cubeCount-2; i++) {
+    yVals.push(0);
+  }
 
   function resizeCanvasToDisplaySize() {
     const canvas = renderer.domElement;
@@ -80,13 +85,32 @@ function main() {
     }
   }
 
-  function render(time) {
+  const midX = Math.floor(cubeCount/2);
+
+  
+  function render(time) {    
     time *= 0.001;
+    //const val = Math.sin(time)*2;
+
+    //yVals.unshift(val);
+    //yVals.pop();
 
     resizeCanvasToDisplaySize();
 
+    let i = 0;
     for (let c of cubes) {
+      const x = Math.floor(i / cubeCount);
+      const y = i % cubeCount;
+      const index = Math.max(Math.abs(Math.floor(cubeCount/2)-x), Math.abs(Math.floor(cubeCount/2)-y));
+      console.log("i: " + i + " x: " + x + " y: " + y + " index: " + index);
+
+      let val = Math.sin(time-(index*0.4))*2;
+      //c.position.y = yVals[index];
+      c.position.y = val;
+
       c.rotation.y += 0.002;
+
+      i++;
     }
 
     renderer.render(scene, camera);
