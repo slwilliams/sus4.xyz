@@ -1,6 +1,5 @@
 import * as THREE from "/assets/three.module.js";
 
-
 // Global audio context.
 var context = new AudioContext();
 var source = context.createBufferSource();
@@ -11,7 +10,6 @@ function loadAndPlayAudio(song) {
   request.open('GET', `/assets/${song}.mp3`, true);
   request.responseType = 'arraybuffer';
 
-  // Decode asynchronously
   request.onload = function() {
     context.decodeAudioData(request.response, function(buffer) {      
       if (playing) {
@@ -36,64 +34,65 @@ function main() {
   const canvas = document.querySelector('#canvas');
   const renderer = new THREE.WebGLRenderer({canvas});
 
+  const cubeCount = 9;
+  const cubeSize = 1;
+  const cubeStride = 3;
+
   const fov = 75;
-  const aspect = 2;  // the canvas default
-  const near = 0.1;
-  const far = 5;
+  const aspect = 2;
+  const near = 0.01;
+  const far = 500;
   const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-  camera.position.z = 2;
+  camera.position.z = cubeCount*cubeStride + 5;
+  camera.position.x = cubeCount*cubeStride/2.0 - cubeSize;
+  camera.position.y = 4;
+  camera.rotation.x = -0.4;
 
   const scene = new THREE.Scene();
 
-  const color = 0xFFFFFF;
-  const intensity = 1;
-  const light = new THREE.DirectionalLight(color, intensity);
+  const light = new THREE.DirectionalLight(0xFFFFFF, 1);
   light.position.set(-1, 2, 4);
   scene.add(light);
 
-  const boxWidth = 1;
-  const boxHeight = 1;
-  const boxDepth = 1;
-  const geometry = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth);
+  const geometry = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
 
-  const material = new THREE.MeshPhongMaterial({color: 0x44aa88});
-
-  const cube = new THREE.Mesh(geometry, material);
-  scene.add(cube);
+  let cubes = [];  
+  for (let i = 0; i < cubeCount; i++) {
+    for (let j = 0; j < cubeCount; j++) {
+      const material = new THREE.MeshPhongMaterial({color: Math.ceil(Math.random()*16777215)});
+      const cube = new THREE.Mesh(geometry, material);
+      cube.position.x += cubeStride * i;
+      cube.position.z += (cubeStride * j) + 5;
+      cubes.push(cube);
+      scene.add(cube);
+    }    
+  }  
 
   function resizeCanvasToDisplaySize() {
     const canvas = renderer.domElement;
-    // look up the size the canvas is being displayed
     const width = canvas.clientWidth;
     const height = canvas.clientHeight;
 
-    // adjust displayBuffer size to match
     if (canvas.width !== width || canvas.height !== height) {
-      // you must pass false here or three.js sadly fights the browser
       renderer.setSize(width, height, false);
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
-
-      // update any render target sizes here
     }
   }
 
-  
-
   function render(time) {
-    time *= 0.001;  // convert time to seconds
+    time *= 0.001;
 
     resizeCanvasToDisplaySize();
 
-    cube.rotation.x = time;
-    cube.rotation.y = time;
+    for (let c of cubes) {
+      c.rotation.y += 0.002;
+    }
 
     renderer.render(scene, camera);
-
     requestAnimationFrame(render);
   }
   requestAnimationFrame(render);
-
 }
 
 $('.button').each(function(i, e) {
