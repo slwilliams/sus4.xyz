@@ -97,8 +97,8 @@ function main() {
     var values = 0;
     var average;
 
-    //var length = array.length;
-    var length = 3;
+    var length = array.length;
+    //var length = 1;
 
 
     // get all the frequency amplitudes
@@ -108,14 +108,14 @@ function main() {
 
     average = values / length;
     if (average != 0) {
-      console.log(array[0] + " " + array[1] + " " + array[2] + " " + array[3]);
+      //console.log(array[0] + " " + array[1] + " " + array[2] + " " + array[3]);
     }
 
     return average;
   }
  
   const speed = 0.01; 
-  const amt = 2;
+  const amt = 4;
 
   function render(time) {    
     var array =  new Uint8Array(analyser.frequencyBinCount);
