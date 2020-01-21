@@ -3,6 +3,9 @@ import * as THREE from "/assets/three.module.js";
 // Global audio context.
 var context = new AudioContext();
 var source = context.createBufferSource();
+var analyser = context.createAnalyser();
+analyser.smoothingTimeConstant = 0.3;
+analyser.fftSize = 1024;
 var playing = false;
 
 function loadAndPlayAudio(song) {           
@@ -19,10 +22,10 @@ function loadAndPlayAudio(song) {
       source.buffer = buffer;
       var gainNode = context.createGain();
       source.connect(gainNode);
-      gainNode.connect(context.destination);
-      gainNode.gain.value = -0.4;
+      gainNode.connect(analyser);      
+      gainNode.gain.value = 1;
+      analyser.connect(context.destination);
       
-      source.connect(context.destination);
       source.start(0);
       playing = true;
     }, null);
@@ -69,7 +72,8 @@ function main() {
   }  
 
   let wantVals = [];
-  for (let i = 0; i < (cubeCount-2)*30; i++) {
+  const prop = 15;
+  for (let i = 0; i < (cubeCount-2)*prop; i++) {
     wantVals.push(0);
   }
 
@@ -85,13 +89,39 @@ function main() {
     }
   }
 
-  let want = 2;  
-  document.addEventListener('keyup', (e) => {
-    want = Number(e.key);
-  });
+  let want = 0; 
+
+ 
+
+   function getAverageVolume(array) {
+    var values = 0;
+    var average;
+
+    var length = array.length;
+
+    // get all the frequency amplitudes
+    for (var i = 0; i < length; i++) {
+        values += array[i];
+    }
+
+    average = values / length;
+    return average;
+  }
+ 
   const speed = 0.02; 
+  const amt = 4;
 
   function render(time) {    
+    var array =  new Uint8Array(analyser.frequencyBinCount);
+    analyser.getByteFrequencyData(array);
+    var average = getAverageVolume(array)
+    average = Math.min(100, average);
+    want = (average/100)*amt - amt/2;
+    if (average == 0) {
+      want = 0;
+    }
+    console.log("avg: " + average + " want@ " + want);
+
     time *= 0.001;
 
     wantVals.unshift(want);
@@ -106,7 +136,7 @@ function main() {
       const index = Math.max(Math.abs(Math.floor(cubeCount/2)-x), Math.abs(Math.floor(cubeCount/2)-y));
       //console.log("i: " + i + " x: " + x + " y: " + y + " index: " + index);
 
-      let wantVal = wantVals[index*30];
+      let wantVal = wantVals[index*prop];
       if (Math.abs(wantVal - c.position.y) > speed) {
         c.position.y += Math.sign(wantVal - c.position.y)*speed;
       }
