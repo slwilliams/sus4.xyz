@@ -68,9 +68,9 @@ function main() {
     }    
   }  
 
-  let yVals = [];
-  for (let i = 0; i < cubeCount-2; i++) {
-    yVals.push(0);
+  let wantVals = [];
+  for (let i = 0; i < (cubeCount-2)*30; i++) {
+    wantVals.push(0);
   }
 
   function resizeCanvasToDisplaySize() {
@@ -85,15 +85,17 @@ function main() {
     }
   }
 
-  const midX = Math.floor(cubeCount/2);
+  let want = 2;  
+  document.addEventListener('keyup', (e) => {
+    want = Number(e.key);
+  });
+  const speed = 0.02; 
 
-  
   function render(time) {    
     time *= 0.001;
-    //const val = Math.sin(time)*2;
 
-    //yVals.unshift(val);
-    //yVals.pop();
+    wantVals.unshift(want);
+    wantVals.pop();
 
     resizeCanvasToDisplaySize();
 
@@ -102,12 +104,12 @@ function main() {
       const x = Math.floor(i / cubeCount);
       const y = i % cubeCount;
       const index = Math.max(Math.abs(Math.floor(cubeCount/2)-x), Math.abs(Math.floor(cubeCount/2)-y));
-      console.log("i: " + i + " x: " + x + " y: " + y + " index: " + index);
+      //console.log("i: " + i + " x: " + x + " y: " + y + " index: " + index);
 
-      let val = Math.sin(time-(index*0.4))*2;
-      //c.position.y = yVals[index];
-      c.position.y = val;
-
+      let wantVal = wantVals[index*30];
+      if (Math.abs(wantVal - c.position.y) > speed) {
+        c.position.y += Math.sign(wantVal - c.position.y)*speed;
+      }
       c.rotation.y += 0.002;
 
       i++;
@@ -127,6 +129,7 @@ $('.button').each(function(i, e) {
     }
     loadAndPlayAudio(song);
   });
+
 });
 
 main();
