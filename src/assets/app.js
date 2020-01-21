@@ -37,9 +37,9 @@ function main() {
   const canvas = document.querySelector('#canvas');
   const renderer = new THREE.WebGLRenderer({canvas});
 
-  const cubeCount = 15;
-  const cubeSize = 1;
-  const cubeStride = 3;
+  const cubeCount = 41;
+  const cubeSize = 0.5;
+  const cubeStride = 0.75;
 
   const fov = 75;
   const aspect = 2;
@@ -62,7 +62,7 @@ function main() {
   let cubes = [];  
   for (let i = 0; i < cubeCount; i++) {
     for (let j = 0; j < cubeCount; j++) {
-      const material = new THREE.MeshPhongMaterial({color: Math.ceil(Math.random()*16777215)});
+      const material = new THREE.MeshPhongMaterial({color: Math.ceil((Math.random()*0x222222)|0x00CC00)});
       const cube = new THREE.Mesh(geometry, material);
       cube.position.x += cubeStride * i;
       cube.position.z += (cubeStride * j) + 5;
@@ -72,7 +72,7 @@ function main() {
   }  
 
   let wantVals = [];
-  const prop = 15;
+  const prop = 20;
   for (let i = 0; i < (cubeCount-2)*prop; i++) {
     wantVals.push(0);
   }
@@ -97,7 +97,9 @@ function main() {
     var values = 0;
     var average;
 
-    var length = array.length;
+    //var length = array.length;
+    var length = 3;
+
 
     // get all the frequency amplitudes
     for (var i = 0; i < length; i++) {
@@ -105,18 +107,21 @@ function main() {
     }
 
     average = values / length;
+    if (average != 0) {
+      console.log(array[0] + " " + array[1] + " " + array[2] + " " + array[3]);
+    }
+
     return average;
   }
  
-  const speed = 0.02; 
-  const amt = 4;
+  const speed = 0.01; 
+  const amt = 2;
 
   function render(time) {    
     var array =  new Uint8Array(analyser.frequencyBinCount);
     analyser.getByteFrequencyData(array);
     var average = getAverageVolume(array)
-    average = Math.min(100, average);
-    want = (average/100)*amt - amt/2;
+    want = (average/255)*amt - amt/2;
     if (average == 0) {
       want = 0;
     }
