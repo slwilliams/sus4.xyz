@@ -175,7 +175,7 @@ function main() {
       //console.log("x: " + x + " y: " + y);
       camera.position.x = initX + x;
       camera.position.z = initY + y;
-      console.log(Math.min(Math.sin(cameraAngle)*2 + 3, 3));
+      //console.log(Math.min(Math.sin(cameraAngle)*2 + 3, 3));
       camera.position.y = Math.min(Math.sin(cameraAngle)*2 + 3, 3);
       camera.rotation.y = -cameraAngle;
     }
