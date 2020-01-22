@@ -45,7 +45,7 @@ function loadAndPlayAudio(song) {
  
 function main() {
   const canvas = document.querySelector('#canvas');
-  const renderer = new THREE.WebGLRenderer({canvas});
+  const renderer = new THREE.WebGLRenderer({canvas, antialias:true});
 
   const cubeCount = 41;
   const cubeSize = 0.5;
@@ -54,12 +54,11 @@ function main() {
   const fov = 75;
   const aspect = 2;
   const near = 0.01;
-  const far = 500;
+  const far = 2000;
   const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
   camera.position.z = cubeCount*cubeStride + 5;
   camera.position.x = cubeCount*cubeStride/2.0 - cubeSize;
   camera.position.y = 3;
-  //camera.rotation.x = -0.4;
 
   const scene = new THREE.Scene();
 
@@ -67,8 +66,18 @@ function main() {
   light.position.set(-1, 2, 4);
   scene.add(light);
 
-  const geometry = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
+  var urls = [
+    '/assets/purplenebula_ft.jpg',
+    '/assets/purplenebula_bk.jpg',
+    '/assets/purplenebula_up.jpg',
+    '/assets/purplenebula_dn.jpg',
+    '/assets/purplenebula_rt.jpg',
+    '/assets/purplenebula_lf.jpg',
+  ];
+  var textureCube = new THREE.CubeTextureLoader().load(urls);
+  scene.background = textureCube;
 
+  const geometry = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
   let cubes = [];  
   for (let i = 0; i < cubeCount; i++) {
     for (let j = 0; j < cubeCount; j++) {
