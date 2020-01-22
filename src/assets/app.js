@@ -28,6 +28,9 @@ function loadAndPlayAudio(song) {
       
       source.start(0);
       playing = true;
+      source.onended = function(e) {
+        playing = false;
+      }
     }, null);
   }
   request.send();
@@ -48,8 +51,8 @@ function main() {
   const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
   camera.position.z = cubeCount*cubeStride + 5;
   camera.position.x = cubeCount*cubeStride/2.0 - cubeSize;
-  camera.position.y = 4;
-  camera.rotation.x = -0.4;
+  camera.position.y = 3;
+  //camera.rotation.x = -0.4;
 
   const scene = new THREE.Scene();
 
@@ -89,11 +92,8 @@ function main() {
     }
   }
 
-  let want = 0; 
-
  
-
-   function getAverageVolume(array) {
+  function getAverageVolume(array) {
     var values = 0;
     var average;
 
@@ -113,19 +113,26 @@ function main() {
 
     return average;
   }
+
+  let cameraSpeed = 0.005;
+  let cameraAngle = 0;
+  const cameraDist = cubeCount*cubeStride/2;
  
   const speed = 0.01; 
-  const amt = 4;
+  const amt = 5;
+
+  const initX = camera.position.x;
+  const initY = camera.position.z;
 
   function render(time) {    
     var array =  new Uint8Array(analyser.frequencyBinCount);
     analyser.getByteFrequencyData(array);
     var average = getAverageVolume(array)
-    want = (average/255)*amt - amt/2;
+    let want = (average/255)*amt - amt/2;
     if (average == 0) {
       want = 0;
     }
-    console.log("avg: " + average + " want@ " + want);
+    //console.log("avg: " + average + " want@ " + want);
 
     time *= 0.001;
 
@@ -148,6 +155,29 @@ function main() {
       c.rotation.y += 0.002;
 
       i++;
+    }
+
+    if (playing) {
+      cameraAngle = (cameraAngle + cameraSpeed) % (2*Math.PI);
+      let xSign = 0;
+      let ySign = 0;
+      // x neg == left, y neg == into screen
+      if (cameraAngle > 0 && cameraAngle <= Math.PI) {
+        xSign = -1;
+        ySign = -1;
+      }      
+      if (cameraAngle > Math.PI && cameraAngle <= 2*Math.PI) {
+        xSign = -1;
+        ySign = -1;
+      }
+      let x = 2*cameraDist*Math.sin(cameraAngle/2)*Math.cos(cameraAngle/2)*xSign;
+      let y = 2*cameraDist*Math.sin(cameraAngle/2)*Math.sin(cameraAngle/2)*ySign;
+      //console.log("x: " + x + " y: " + y);
+      camera.position.x = initX + x;
+      camera.position.z = initY + y;
+      console.log(Math.min(Math.sin(cameraAngle)*2 + 3, 3));
+      camera.position.y = Math.min(Math.sin(cameraAngle)*2 + 3, 3);
+      camera.rotation.y = -cameraAngle;
     }
 
     renderer.render(scene, camera);
