@@ -7,17 +7,23 @@ var analyser = context.createAnalyser();
 analyser.smoothingTimeConstant = 0.3;
 analyser.fftSize = 1024;
 var playing = false;
+var playingID = '';
 
-function loadAndPlayAudio(song) {           
+function loadAndPlayAudio(song) {     
+  if (playing) {
+    source.stop(0);
+    playing = false;
+    if (playingID == song) {
+      playingID = '';
+      return;
+    }
+  }      
   var request = new XMLHttpRequest();
   request.open('GET', `/assets/${song}.mp3`, true);
   request.responseType = 'arraybuffer';
 
   request.onload = function() {
-    context.decodeAudioData(request.response, function(buffer) {      
-      if (playing) {
-        source.stop(0);
-      }
+    context.decodeAudioData(request.response, function(buffer) { 
       source = context.createBufferSource();
       source.buffer = buffer;
       var gainNode = context.createGain();
@@ -28,6 +34,7 @@ function loadAndPlayAudio(song) {
       
       source.start(0);
       playing = true;
+      playingID = song;
       source.onended = function(e) {
         playing = false;
       }
