@@ -38,7 +38,7 @@ function loadAndPlayAudio(song) {
       source.onended = function(e) {
         playing = false;
       }
-    }, null);
+    }, ()=>{});
   }
   request.send();
 }
