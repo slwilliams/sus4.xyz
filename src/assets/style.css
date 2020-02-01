@@ -16,7 +16,7 @@ html, body {
 
 #left-bar {
 	height: 100%;
-	width: 400px;
+	width: 200px;
   background-color: black;
   user-select: none;
 }
@@ -28,12 +28,8 @@ html, body {
 }
 
 #heading {
-  height: 130px;
+  height: 200px;
   width: 100%;
-  display: flex;
-  background-color: black;
-  align-items: center;
-  justify-content: space-around;
 }
 
 #heading h1 {
@@ -61,11 +57,8 @@ html, body {
 }
 
 #logo {
-  width: 61px;
-  height: 130px;
-  display: flex;
-  filter: drop-shadow(2px 2px 4px #6f6);
-  padding-left: 20px;
+  width: 200px;
+  height: 200px;
 }
 
 #menu {
@@ -73,9 +66,14 @@ html, body {
   display: flex;
   background-color: black;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
   user-select: none;
+  overflow-y: auto;
+  padding-top: 30px;
+}
+
+#menu::-webkit-scrollbar {
+  display: none;
 }
 
 .button {
