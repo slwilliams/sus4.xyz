@@ -1,6 +1,5 @@
 import * as THREE from "/assets/three.module.js";
 
-// Global audio context.
 var context = new AudioContext();
 var source = context.createBufferSource();
 var analyser = context.createAnalyser();
@@ -8,6 +7,8 @@ analyser.smoothingTimeConstant = 0.3;
 analyser.fftSize = 1024;
 var playing = false;
 var playingID = '';
+var startTime = 0;
+var bpm = 0;
 
 function loadAndPlayAudio(song) {     
   if (playing) {
@@ -33,6 +34,7 @@ function loadAndPlayAudio(song) {
       analyser.connect(context.destination);
       
       source.start(0);
+      startTime = performance.now();
       playing = true;
       playingID = song;
       source.onended = function(e) {
@@ -78,7 +80,7 @@ function main() {
   scene.background = textureCube;
 
   const geometry = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
-  let cubes = [];  
+  let cubes = [];
   for (let i = 0; i < cubeCount; i++) {
     for (let j = 0; j < cubeCount; j++) {
       const material = new THREE.MeshPhongMaterial({color: Math.ceil((Math.random()*0x222222)|0x00CC00)});
@@ -111,23 +113,11 @@ function main() {
  
   function getAverageVolume(array) {
     var values = 0;
-    var average;
-
     var length = array.length;
-    //var length = 1;
-
-
-    // get all the frequency amplitudes
     for (var i = 0; i < length; i++) {
         values += array[i];
     }
-
-    average = values / length;
-    if (average != 0) {
-      //console.log(array[0] + " " + array[1] + " " + array[2] + " " + array[3]);
-    }
-
-    return average;
+    return values / length;
   }
 
   let cameraSpeed = 0.005;
@@ -135,12 +125,17 @@ function main() {
   const cameraDist = cubeCount*cubeStride/2;
  
   const speed = 0.01; 
-  const amt = 5;
+  const amt = 8;
 
   const initX = camera.position.x;
   const initY = camera.position.z;
 
-  function render(time) {    
+  function render(time) {
+    resizeCanvasToDisplaySize();
+    const timePlaying = performance.now() - startTime;
+    const beatsElapsed = timePlaying * bpm/(60.0*1000);
+    const toNextBeat = Math.abs(0.5 - (Math.ceil(beatsElapsed) - beatsElapsed));
+
     var array =  new Uint8Array(analyser.frequencyBinCount);
     analyser.getByteFrequencyData(array);
     var average = getAverageVolume(array)
@@ -148,29 +143,22 @@ function main() {
     if (average == 0) {
       want = 0;
     }
-    //console.log("avg: " + average + " want@ " + want);
-
-    time *= 0.001;
 
     wantVals.unshift(want);
     wantVals.pop();
 
-    resizeCanvasToDisplaySize();
+    for (let i = 0; i < cubes.length; i++) {
+      const c = cubes[i];
 
-    let i = 0;
-    for (let c of cubes) {
       const x = Math.floor(i / cubeCount);
       const y = i % cubeCount;
       const index = Math.max(Math.abs(Math.floor(cubeCount/2)-x), Math.abs(Math.floor(cubeCount/2)-y));
-      //console.log("i: " + i + " x: " + x + " y: " + y + " index: " + index);
 
       let wantVal = wantVals[index*prop];
       if (Math.abs(wantVal - c.position.y) > speed) {
-        c.position.y += Math.sign(wantVal - c.position.y)*speed;
+        c.position.y += Math.sign(wantVal - c.position.y)*speed
       }
       c.rotation.y += 0.002;
-
-      i++;
     }
 
     if (playing) {
@@ -188,11 +176,9 @@ function main() {
       }
       let x = 2*cameraDist*Math.sin(cameraAngle/2)*Math.cos(cameraAngle/2)*xSign;
       let y = 2*cameraDist*Math.sin(cameraAngle/2)*Math.sin(cameraAngle/2)*ySign;
-      //console.log("x: " + x + " y: " + y);
       camera.position.x = initX + x;
       camera.position.z = initY + y;
-      //console.log(Math.min(Math.sin(cameraAngle)*2 + 3, 3));
-      camera.position.y = Math.min(Math.sin(cameraAngle)*2 + 3, 3);
+      camera.position.y = Math.min(Math.sin(cameraAngle)*2 + 3, 2) + toNextBeat*0.3;
       camera.rotation.y = -cameraAngle;
     }
 
@@ -205,12 +191,14 @@ function main() {
 $('.button').each(function(i, e) {
   $(e).click(function(e) {
     let song = $(this).attr('id');
+    let songBpm = $(this).data('bpm');
     if (song == '') {
       song = $(this).parent().attr('id');
+      songBpm - $(this).parent().data('bpm');
     }
+    bpm = songBpm;
     loadAndPlayAudio(song);
   });
-
 });
 
 main();
